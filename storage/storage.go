@@ -171,6 +171,10 @@ type Client struct {
 	// Name and LogoURL used when displaying this client to the end user.
 	Name    string `json:"name" yaml:"name"`
 	LogoURL string `json:"logoURL" yaml:"logoURL"`
+
+	// AllowedConnectors is a list of connector IDs that the client is allowed to use for authentication.
+	// If empty, all connectors are allowed.
+	AllowedConnectors []string `json:"allowedConnectors" yaml:"allowedConnectors"`
 }
 
 // Claims represents the ID Token claims supported by the server.
