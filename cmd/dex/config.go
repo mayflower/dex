@@ -449,7 +449,8 @@ type Connector struct {
 	Name string `json:"name"`
 	ID   string `json:"id"`
 
-	Config server.ConnectorConfig `json:"config"`
+	Config     server.ConnectorConfig `json:"config"`
+	GrantTypes []string               `json:"grantTypes"`
 }
 
 // UnmarshalJSON allows Connector to implement the unmarshaler interface to
@@ -460,7 +461,8 @@ func (c *Connector) UnmarshalJSON(b []byte) error {
 		Name string `json:"name"`
 		ID   string `json:"id"`
 
-		Config json.RawMessage `json:"config"`
+		Config     json.RawMessage `json:"config"`
+		GrantTypes []string        `json:"grantTypes"`
 	}
 	if err := json.Unmarshal(b, &conn); err != nil {
 		return fmt.Errorf("parse connector: %v", err)
@@ -498,10 +500,11 @@ func (c *Connector) UnmarshalJSON(b []byte) error {
 	}
 
 	*c = Connector{
-		Type:   conn.Type,
-		Name:   conn.Name,
-		ID:     conn.ID,
-		Config: connConfig,
+		Type:       conn.Type,
+		Name:       conn.Name,
+		ID:         conn.ID,
+		Config:     connConfig,
+		GrantTypes: conn.GrantTypes,
 	}
 	return nil
 }
@@ -514,10 +517,11 @@ func ToStorageConnector(c Connector) (storage.Connector, error) {
 	}
 
 	return storage.Connector{
-		ID:     c.ID,
-		Type:   c.Type,
-		Name:   c.Name,
-		Config: data,
+		ID:         c.ID,
+		Type:       c.Type,
+		Name:       c.Name,
+		Config:     data,
+		GrantTypes: c.GrantTypes,
 	}, nil
 }
 

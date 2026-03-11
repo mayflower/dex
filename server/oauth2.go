@@ -145,6 +145,16 @@ const (
 	grantTypeTokenExchange     = "urn:ietf:params:oauth:grant-type:token-exchange"
 )
 
+// ConnectorGrantTypes is the set of grant types that can be restricted per connector.
+var ConnectorGrantTypes = map[string]bool{
+	grantTypeAuthorizationCode: true,
+	grantTypeRefreshToken:      true,
+	grantTypeImplicit:          true,
+	grantTypePassword:          true,
+	grantTypeDeviceCode:        true,
+	grantTypeTokenExchange:     true,
+}
+
 const (
 	// https://www.rfc-editor.org/rfc/rfc8693.html#section-3
 	tokenTypeAccess  = "urn:ietf:params:oauth:token-type:access_token"
