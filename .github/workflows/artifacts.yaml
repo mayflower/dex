@@ -212,6 +212,7 @@ jobs:
         if: inputs.publish
 
       - name: Prepare image fs for scanning
+        if: github.repository == 'dexidp/dex'
         run: |
           image_ref=${{ steps.extract-oci.outputs.value != '' && steps.extract-oci.outputs.value || steps.image-ref.outputs.value }}
           docker export $(docker create --rm $image_ref) -o docker-image.tar
@@ -222,10 +223,12 @@ jobs:
       ## Use cache for the trivy-db to avoid the TOOMANYREQUESTS error https://github.com/aquasecurity/trivy-action/pull/397
       ## To avoid the trivy-db becoming outdated, we save the cache for one day
       - name: Get data
+        if: github.repository == 'dexidp/dex'
         id: date
         run: echo "date=$(date +%Y-%m-%d)" >> $GITHUB_OUTPUT
 
       - name: Restore trivy cache
+        if: github.repository == 'dexidp/dex'
         uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
         with:
           path: cache/db
@@ -233,6 +236,7 @@ jobs:
           restore-keys: trivy-cache-
 
       - name: Run Trivy vulnerability scanner
+        if: github.repository == 'dexidp/dex'
         uses: aquasecurity/trivy-action@e368e328979b113139d6f9068e03accaed98a518 # 0.34.1
         with:
           input: docker-image
@@ -250,12 +254,15 @@ jobs:
       ## But `action/cache` use `runner` user by default
       ## So we need to change the permissions before caching the database.
       - name: change permissions for trivy.db
+        if: github.repository == 'dexidp/dex'
         run: sudo chmod 0644 ./cache/db/trivy.db
 
       - name: Check Trivy sarif
+        if: github.repository == 'dexidp/dex'
         run: cat trivy-results.sarif
 
       - name: Upload Trivy scan results as artifact
+        if: github.repository == 'dexidp/dex'
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: "[${{ github.job }}] Trivy scan results"
@@ -264,6 +271,7 @@ jobs:
           overwrite: true
 
       - name: Upload Trivy scan results to GitHub Security tab
+        if: github.repository == 'dexidp/dex'
         uses: github/codeql-action/upload-sarif@89a39a4e59826350b863aa6b6252a07ad50cf83e # v3.29.5
         with:
           sarif_file: trivy-results.sarif
