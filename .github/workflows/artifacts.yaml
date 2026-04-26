@@ -215,6 +215,7 @@ jobs:
         run: |
           image_ref=${{ steps.extract-oci.outputs.value != '' && steps.extract-oci.outputs.value || steps.image-ref.outputs.value }}
           docker export $(docker create --rm $image_ref) -o docker-image.tar
+        if: github.repository == 'dexidp/dex'
 
           mkdir -p docker-image
           tar -xf docker-image.tar -C docker-image
@@ -224,6 +225,7 @@ jobs:
       - name: Get data
         id: date
         run: echo "date=$(date +%Y-%m-%d)" >> $GITHUB_OUTPUT
+        if: github.repository == 'dexidp/dex'
 
       - name: Restore trivy cache
         uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
@@ -231,6 +233,7 @@ jobs:
           path: cache/db
           key: trivy-cache-${{ steps.date.outputs.date }}
           restore-keys: trivy-cache-
+        if: github.repository == 'dexidp/dex'
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@e368e328979b113139d6f9068e03accaed98a518 # 0.34.1
@@ -245,15 +248,18 @@ jobs:
         env:
           TRIVY_SKIP_DB_UPDATE: true
           TRIVY_SKIP_JAVA_DB_UPDATE: true
+        if: github.repository == 'dexidp/dex'
 
       ## Trivy-db uses `0600` permissions.
       ## But `action/cache` use `runner` user by default
       ## So we need to change the permissions before caching the database.
       - name: change permissions for trivy.db
         run: sudo chmod 0644 ./cache/db/trivy.db
+        if: github.repository == 'dexidp/dex'
 
       - name: Check Trivy sarif
         run: cat trivy-results.sarif
+        if: github.repository == 'dexidp/dex'
 
       - name: Upload Trivy scan results as artifact
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
@@ -262,8 +268,10 @@ jobs:
           path: trivy-results.sarif
           retention-days: 5
           overwrite: true
+        if: github.repository == 'dexidp/dex'
 
       - name: Upload Trivy scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@89a39a4e59826350b863aa6b6252a07ad50cf83e # v3.29.5
         with:
           sarif_file: trivy-results.sarif
+        if: github.repository == 'dexidp/dex'
